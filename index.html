@@ -20,14 +20,15 @@
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
   /* Un solo tamaño para la carta y para el video del sobre */
-  :root { --ancho: min(100vw, 480px, calc(100svh * 9 / 16)); }
+  /* Ancho: lo que quepa en la pantalla manteniendo 9:16. Alto: siempre llega hasta abajo de la pantalla. */
+  :root { --ancho: min(100vw, calc(100svh * 9 / 16)); --alto: max(calc(var(--ancho) * 16 / 9), 100svh); }
   html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
   body { background: #3a4326; min-height: 100svh; }
   main { display: flex; flex-direction: column; align-items: center; gap: 0; }
   .slide {
     position: relative; overflow: hidden;
     width: var(--ancho);
-    aspect-ratio: 5.625 / 10;
+    height: var(--alto);
     container-type: inline-size;
     scroll-snap-align: center;
     box-shadow: 0 0 40px rgba(0,0,0,.25);
@@ -51,12 +52,12 @@
   #intro { touch-action: none; cursor: pointer; }
   #sobre {
     position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-    width: var(--ancho); aspect-ratio: 9 / 16; height: auto; display: block;
+    width: var(--ancho); height: var(--alto); display: block;
     background: #2b451f url("video/sobre.jpg") center / cover no-repeat;
     box-shadow: 0 0 40px rgba(0,0,0,.25);
   }
   .pista {
-    position: absolute; left: 50%; top: calc(var(--ancho) * 16 / 9 * .84); transform: translateX(-50%);
+    position: absolute; left: 50%; top: calc(var(--alto) * .85); transform: translateX(-50%);
     display: flex; flex-direction: column; align-items: center; gap: 10px;
     font: 400 11px/1 Montserrat, Arial, sans-serif; letter-spacing: .32em; color: #F4ECDC; white-space: nowrap;
     transition: opacity .4s cubic-bezier(.2,.8,.2,1); pointer-events: none;
@@ -68,7 +69,7 @@
   .duo { position: relative; display: flex; flex-direction: column; background: #f3efe6; box-shadow: 0 0 40px rgba(0,0,0,.25); }
   .duo .slide { box-shadow: none; }
   .hoja { position: absolute; left: 0; right: 0; overflow: hidden; }
-  .hoja img { position: absolute; left: 0; width: 100%; display: block; }
+  .hoja img { position: absolute; left: 0; width: 100%; display: block; object-fit: cover; }
   .hoja.a { top: 0; height: 37.6%; }
   .hoja.a img { top: 0; height: calc(100% * 50 / 37.6); }
   .hoja.b { top: 37.5%; height: 25.1%; transform: scaleY(-1); }
@@ -112,7 +113,13 @@
     if (i === actual && !forzar) return;
     let k = i; while (k > 0 && !(cuadros[k].complete && cuadros[k].naturalWidth)) k--; // el más cercano ya cargado
     const im = cuadros[k];
-    if (im.complete && im.naturalWidth) { ctx.drawImage(im, 0, 0, cv.width, cv.height); actual = i; }
+    if (im.complete && im.naturalWidth) {
+      // Llena el recuadro sin deformar: recorta los lados si la pantalla es más alta que 9:16
+      const iw = im.naturalWidth, ih = im.naturalHeight, br = cv.width / cv.height;
+      let sw = iw, sh = ih, sx = 0, sy = 0;
+      if (br < iw / ih) { sw = ih * br; sx = (iw - sw) / 2; } else { sh = iw / br; sy = (ih - sh) / 2; }
+      ctx.drawImage(im, sx, sy, sw, sh, 0, 0, cv.width, cv.height); actual = i;
+    }
   }
   const lim = (x) => Math.max(0, Math.min(1, x));
   function mover(d) { if (listo) return; auto = false; meta = lim(meta + d); }
