@@ -137,7 +137,7 @@
   let antes = 0;
   function ciclo(ts) {
     // Medido en segundos reales: abre igual de rápido en un celular lento o rápido
-    const dt = antes ? Math.min(0.1, (ts - antes) / 1000) : 1 / 60; antes = ts;
+    const dt = antes ? Math.min(0.3, (ts - antes) / 1000) : 1 / 60; antes = ts;
     if (listo) return;
     if (auto) meta = lim(meta + dt / 1.1);           // un toque abre el sobre en ~1 segundo
     p += (meta - p) * (1 - Math.pow(0.78, dt * 60)); if (Math.abs(meta - p) < 0.0005) p = meta;
