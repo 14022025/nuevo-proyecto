@@ -46,23 +46,23 @@
   body.intro { overflow: hidden; }
   #intro {
     position: fixed; inset: 0; z-index: 50; background: #3a4326;
-    transition: opacity .9s cubic-bezier(.2,.8,.2,1), visibility .9s;
   }
   /* El sobre ocupa exactamente el mismo recuadro que la portada de la carta */
-  #intro video {
+  #intro { touch-action: none; cursor: pointer; }
+  #sobre {
     position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-    width: var(--ancho); aspect-ratio: 9 / 16; height: auto;
-    object-fit: cover; display: block; background: #2b451f;
+    width: var(--ancho); aspect-ratio: 9 / 16; height: auto; display: block;
+    background: #2b451f url("video/sobre.jpg") center / cover no-repeat;
     box-shadow: 0 0 40px rgba(0,0,0,.25);
   }
-  #intro.fuera { opacity: 0; visibility: hidden; pointer-events: none; }
-  #abrir {
-    position: absolute; left: 50%; top: calc(var(--ancho) * 16 / 9 * .82); transform: translateX(-50%); z-index: 2;
-    font: 700 12px/1 Montserrat, Arial, sans-serif; letter-spacing: .3em; color: #F4ECDC;
-    background: rgba(122,22,38,.92); border: 0; border-radius: 999px; padding: 16px 28px; cursor: pointer;
+  .pista {
+    position: absolute; left: 50%; top: calc(var(--ancho) * 16 / 9 * .84); transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    font: 400 11px/1 Montserrat, Arial, sans-serif; letter-spacing: .32em; color: #F4ECDC; white-space: nowrap;
+    transition: opacity .4s cubic-bezier(.2,.8,.2,1); pointer-events: none;
   }
-  #abrir[hidden] { display: none; }
-  main { transition: opacity .9s cubic-bezier(.2,.8,.2,1); }
+  .pista svg { width: 18px; height: 18px; animation: sube 1.8s cubic-bezier(.2,.8,.2,1) infinite; }
+  @keyframes sube { 0%, 100% { transform: translateY(4px); opacity: .5; } 50% { transform: translateY(-4px); opacity: 1; } }
   body.intro main { opacity: 0; }
   /* Portada + saludo comparten una sola hoja de papel continua */
   .duo { position: relative; display: flex; flex-direction: column; background: #f3efe6; box-shadow: 0 0 40px rgba(0,0,0,.25); }
@@ -79,37 +79,84 @@
 </head>
 <body class="intro">
 <div id="intro">
-  <video id="sobre" src="video/sobre.mp4?v=2" poster="video/sobre.jpg" muted playsinline autoplay preload="auto"></video>
-  <button id="abrir" type="button" hidden>TOCA PARA ABRIR</button>
+  <canvas id="sobre" aria-label="Sobre con sello de cera"></canvas>
+  <div class="pista" id="pista">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#F4ECDC" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>
+    DESLIZA PARA ABRIR
+  </div>
 </div>
 <main id="inv"></main>
 <script>
-// Intro: el video del sobre arranca solo; al terminar se desvanece y aparece la carta.
+// Intro: el sobre se abre con el scroll (dedo, rueda del mouse o teclado) y luego se desvanece en la carta.
 (function () {
   if ("scrollRestoration" in history) history.scrollRestoration = "manual";
   window.scrollTo(0, 0);
-  const intro = document.getElementById("intro"), v = document.getElementById("sobre"), btn = document.getElementById("abrir");
-  let listo = false, falla;
+  const intro = document.getElementById("intro"), cv = document.getElementById("sobre"), pista = document.getElementById("pista");
+  const ctx = cv.getContext("2d"), main = document.getElementById("inv");
+  const N = 96, ABRE = 0.84;               // 84 % del recorrido abre el sobre, el resto lo desvanece en la carta
+  const cuadros = [];
+  for (let i = 0; i < N; i++) {
+    const im = new Image(); im.decoding = "async";
+    im.src = "video/f/" + String(i + 1).padStart(3, "0") + ".jpg";
+    im.onload = () => { if (Math.abs(i - actual) < 3 || i === 0) pintar(true); };
+    cuadros.push(im);
+  }
+  let p = 0, meta = 0, actual = -1, auto = false, listo = false;
+
+  function medir() {
+    const r = cv.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2);
+    cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr); pintar(true);
+  }
+  function pintar(forzar) {
+    const i = Math.round(Math.min(1, p / ABRE) * (N - 1));
+    if (i === actual && !forzar) return;
+    let k = i; while (k > 0 && !(cuadros[k].complete && cuadros[k].naturalWidth)) k--; // el más cercano ya cargado
+    const im = cuadros[k];
+    if (im.complete && im.naturalWidth) { ctx.drawImage(im, 0, 0, cv.width, cv.height); actual = i; }
+  }
+  const lim = (x) => Math.max(0, Math.min(1, x));
+  function mover(d) { if (listo) return; auto = false; meta = lim(meta + d); }
+
+  function ciclo() {
+    if (listo) return;
+    if (auto) meta = lim(meta + 0.012);
+    p += (meta - p) * 0.16; if (Math.abs(meta - p) < 0.0005) p = meta;
+    pintar(false);
+    const fuera = lim((p - ABRE) / (1 - ABRE));
+    intro.style.opacity = 1 - fuera; main.style.opacity = fuera;
+    pista.style.opacity = p < 0.02 ? 1 : 0;
+    if (p >= 1) return terminar();
+    requestAnimationFrame(ciclo);
+  }
   function terminar() {
-    if (listo) return; listo = true; clearTimeout(falla);
-    document.body.classList.remove("intro"); intro.classList.add("fuera");
-    setTimeout(() => intro.remove(), 1300);
+    listo = true; intro.remove(); main.style.opacity = "";
+    document.body.classList.remove("intro"); window.scrollTo(0, 0);
   }
-  function reproducir() {
-    btn.hidden = true;
-    const p = v.play();
-    if (p && p.catch) p.catch((e) => {
-      if (e && e.name === "NotAllowedError" && v.paused) { clearTimeout(falla); btn.hidden = false; }
-    });
-    clearTimeout(falla); falla = setTimeout(terminar, 10000); // por si el video nunca arranca
-  }
-  v.addEventListener("playing", () => { clearTimeout(falla); btn.hidden = true; });
-  v.addEventListener("timeupdate", () => { if (v.duration && v.currentTime >= v.duration - 0.45) terminar(); });
-  v.addEventListener("ended", terminar);
-  v.addEventListener("error", terminar);
-  btn.addEventListener("click", reproducir);
-  intro.addEventListener("click", (e) => { if (e.target !== btn && v.paused && !listo) reproducir(); });
-  reproducir();
+
+  // Rueda del mouse o trackpad
+  window.addEventListener("wheel", (e) => {
+    if (listo) return; e.preventDefault();
+    const d = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
+    mover(d / (window.innerHeight * 1.4));
+  }, { passive: false });
+  // Dedo en el celular
+  let y = null;
+  intro.addEventListener("touchstart", (e) => { y = e.touches[0].clientY; }, { passive: true });
+  intro.addEventListener("touchmove", (e) => {
+    if (y === null) return; e.preventDefault();
+    const ny = e.touches[0].clientY; mover((y - ny) / (window.innerHeight * 0.75)); y = ny;
+  }, { passive: false });
+  intro.addEventListener("touchend", () => { y = null; });
+  // Teclado y toque: un toque abre el sobre solo
+  window.addEventListener("keydown", (e) => {
+    if (listo) return;
+    if (["ArrowDown", "PageDown", " ", "Enter"].includes(e.key)) { e.preventDefault(); mover(0.18); }
+    if (["ArrowUp", "PageUp"].includes(e.key)) { e.preventDefault(); mover(-0.18); }
+  });
+  intro.addEventListener("click", () => { if (!listo) auto = true; });
+
+  window.addEventListener("resize", () => { if (!listo) medir(); });
+  medir(); requestAnimationFrame(ciclo);
 })();
 </script>
 <script>
