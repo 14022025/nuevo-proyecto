@@ -51,6 +51,8 @@
   a.boton { text-decoration: none; cursor: pointer; z-index: 2; }
   a.boton:active { transform: scale(.97); }
   a.abre { cursor: pointer; text-decoration: none; z-index: 2; }
+  a.abre .flecha { display: inline-block; margin-left: .6em; letter-spacing: 0; animation: baja 1.6s cubic-bezier(.2,.8,.2,1) infinite; }
+  @keyframes baja { 0%, 100% { transform: translateY(-15%); } 50% { transform: translateY(25%); } }
   .heart { display: block; }
   /* Intro: el sobre se abre y se desvanece para mostrar la carta */
   body.intro, body.quieto { overflow: hidden; }
@@ -251,8 +253,12 @@ function rect(s, x, y, w, h, r, fill, line, lw) {
   t(s, "Karina Llanos", { y: 6.25, h: 1.0, fontFace: SCRIPT, fontSize: 48, color: WINE });
   t(s, "JUEVES  ·  3 DE DICIEMBRE", { y: 7.45, h: 0.3, fontFace: SANS, fontSize: 9.5, color: GREEN_D, charSpacing: 3 });
   img(s, "flourish_burg.png", center(2.6), 8.2, 2.6, 0.26);
-  const a = t(s, "DESLIZA HACIA ABAJO  ↓", { y: 8.5, h: 0.4, fontFace: SANS, fontSize: 9, color: GREEN_D, charSpacing: 4 }, "a");
+  // Botón vino, igual al de "Confirmar asistencia", con una flecha que baja suavemente
+  const a = t(s, [{ text: "DESLIZA HACIA ABAJO" }], { x: center(3.4), w: 3.4, y: 8.55, h: 0.56, fontFace: SANS, fontSize: 10.5, bold: true, color: CREAM, charSpacing: 3 }, "a");
   a.classList.add("abre"); a.href = "#saludo";
+  a.style.background = WINE; a.style.borderRadius = cq(0.28 * 72); a.style.boxShadow = "0 6px 18px rgba(122,22,38,.28)";
+  const flecha = document.createElement("span"); flecha.className = "flecha"; flecha.textContent = "↓";
+  a.firstChild.appendChild(flecha);
 }
 
 // 2 ─ Saludo + calendario
