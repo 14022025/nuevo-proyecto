@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cumpleaños de Karina Llanos</title>
+<meta name="description" content="Jueves 3 de diciembre · Almuerzo de cumpleaños">
+<meta property="og:title" content="Cumpleaños de Karina Llanos">
+<meta property="og:description" content="Jueves 3 de diciembre · 1:00 p. m. · Almuerzo de cumpleaños">
+<meta property="og:image" content="codigo/assets/seal_real_wine.png">
+<meta name="theme-color" content="#4E5A32">
+<link rel="icon" href="codigo/assets/seal_real_wine.png">
+<style>
+  @font-face { font-family: "Pinyon Script"; src: url("codigo/fuentes/PinyonScript-Regular.ttf") format("truetype"); font-display: swap; }
+  @font-face { font-family: "Cormorant Garamond"; src: url("codigo/fuentes/CormorantGaramond-Regular.ttf") format("truetype"); font-weight: 400; font-style: normal; font-display: swap; }
+  @font-face { font-family: "Cormorant Garamond"; src: url("codigo/fuentes/CormorantGaramond-Bold.ttf") format("truetype"); font-weight: 700; font-style: normal; font-display: swap; }
+  @font-face { font-family: "Cormorant Garamond"; src: url("codigo/fuentes/CormorantGaramond-Italic.ttf") format("truetype"); font-weight: 400; font-style: italic; font-display: swap; }
+  @font-face { font-family: "Montserrat"; src: url("codigo/fuentes/Montserrat-Regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "Montserrat"; src: url("codigo/fuentes/Montserrat-Bold.ttf") format("truetype"); font-weight: 700; font-display: swap; }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+  body { background: #3a4326; min-height: 100svh; }
+  main { display: flex; flex-direction: column; align-items: center; gap: 0; }
+  .slide {
+    position: relative; overflow: hidden;
+    width: min(100vw, 480px, calc(100svh * 9 / 16));
+    aspect-ratio: 5.625 / 10;
+    container-type: inline-size;
+    scroll-snap-align: center;
+    box-shadow: 0 0 40px rgba(0,0,0,.25);
+  }
+  @media (min-height: 1px) { main { padding: 0; } }
+  .slide > * { position: absolute; }
+  .bg { inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .tx { display: flex; align-items: center; justify-content: center; text-align: center; line-height: 1.05; }
+  .tx > span { display: block; width: 100%; }
+  .shape { border-style: solid; }
+  a.boton { text-decoration: none; cursor: pointer; z-index: 2; }
+  a.boton:active { transform: scale(.97); }
+  a.abre { cursor: pointer; text-decoration: none; z-index: 2; }
+  .heart { display: block; }
+</style>
+</head>
+<body>
+<main id="inv"></main>
+<script>
+// Mismas posiciones que construir_invitacion.js (pulgadas sobre una página de 5,625 × 10).
+const W = 5.625, H = 10, PT = 5.625 * 72; // ancho de la página en puntos
+const A = "codigo/assets/";
+const SCRIPT = "'Pinyon Script', cursive", SERIF = "'Cormorant Garamond', Georgia, serif", SANS = "Montserrat, Arial, sans-serif";
+const WINE = "#7A1626", GREEN = "#6E7A48", GREEN_D = "#4E5A32", CREAM = "#F4ECDC", INK = "#3E3A2C";
+const center = (w) => (W - w) / 2;
+const cq = (pt) => (pt / PT * 100) + "cqw";
+const MENSAJE = "¡Hola! Confirmo mi asistencia al almuerzo de cumpleaños de Karina el jueves 3 de diciembre a la 1:00 p. m. 🎉";
+
+const root = document.getElementById("inv");
+function slide(id) { const s = document.createElement("section"); s.className = "slide"; s.id = id; root.appendChild(s); return s; }
+function box(s, el, x, y, w, h) {
+  el.style.left = (x / W * 100) + "%"; el.style.top = (y / H * 100) + "%";
+  el.style.width = (w / W * 100) + "%"; el.style.height = (h / H * 100) + "%";
+  s.appendChild(el); return el;
+}
+function t(s, text, o, tag) {
+  o = Object.assign({ x: 0.45, w: W - 0.9 }, o);
+  const d = document.createElement(tag || "div"); d.className = "tx";
+  const inner = document.createElement("span");
+  const runs = Array.isArray(text) ? text : [{ text, options: {} }];
+  runs.forEach(r => {
+    const sp = document.createElement("span"); sp.style.display = "inline"; sp.textContent = r.text;
+    const p = r.options || {};
+    if (p.italic) sp.style.fontStyle = "italic";
+    if (p.bold) sp.style.fontWeight = 700;
+    if (p.color) sp.style.color = p.color;
+    inner.appendChild(sp);
+    if (p.breakLine) inner.appendChild(document.createElement("br"));
+  });
+  d.appendChild(inner);
+  d.style.fontFamily = o.fontFace; d.style.fontSize = cq(o.fontSize); d.style.color = o.color;
+  if (o.italic) d.style.fontStyle = "italic";
+  if (o.bold) d.style.fontWeight = 700;
+  if (o.charSpacing) d.style.letterSpacing = cq(o.charSpacing);
+  if (o.lineSpacingMultiple) d.style.lineHeight = 1.2 * o.lineSpacingMultiple;
+  return box(s, d, o.x, o.y, o.w, o.h);
+}
+function img(s, name, x, y, w, h, alt) { const i = document.createElement("img"); i.src = A + name; i.alt = alt || ""; return box(s, i, x, y, w, h); }
+function bg(s, n) { const i = document.createElement("img"); i.src = A + n; i.alt = ""; i.className = "bg"; s.appendChild(i); }
+function rect(s, x, y, w, h, r, fill, line, lw) {
+  const d = document.createElement("div"); d.className = "shape";
+  d.style.background = fill; d.style.borderRadius = cq(r * 72); d.style.borderColor = line; d.style.borderWidth = lw ? cq(lw) : "0";
+  return box(s, d, x, y, w, h);
+}
+
+// 1 ─ Portada
+{
+  const s = slide("inicio"); bg(s, "emboss_corners_cream.jpg");
+  t(s, "UNA CARTA ESPECIAL PARA TI", { y: 1.3, h: 0.3, fontFace: SANS, fontSize: 9.5, color: GREEN_D, charSpacing: 4 });
+  const sw = 2.15, sh = sw * 655 / 538;
+  img(s, "seal_real_wine.png", center(sw), 4.2 - sh / 2, sw, sh, "Sello de cera con la K");
+  t(s, "por el cumpleaños de", { y: 5.85, h: 0.4, fontFace: SERIF, italic: true, fontSize: 17, color: INK });
+  t(s, "Karina Llanos", { y: 6.25, h: 1.0, fontFace: SCRIPT, fontSize: 48, color: WINE });
+  t(s, "JUEVES  ·  3 DE DICIEMBRE", { y: 7.45, h: 0.3, fontFace: SANS, fontSize: 9.5, color: GREEN_D, charSpacing: 3 });
+  img(s, "flourish_burg.png", center(2.6), 8.2, 2.6, 0.26);
+  const a = t(s, "ABRE LA INVITACIÓN  ↓", { y: 8.5, h: 0.4, fontFace: SANS, fontSize: 9, color: GREEN_D, charSpacing: 4 }, "a");
+  a.classList.add("abre"); a.href = "#saludo";
+}
+
+// 2 ─ Saludo + calendario
+{
+  const s = slide("saludo"); bg(s, "cream_plain.jpg");
+  t(s, "¡Queridos compañeros!", { y: 1.45, h: 0.85, fontFace: SCRIPT, fontSize: 36, color: WINE });
+  t(s, [
+    { text: "Se acerca una fecha muy especial e importante para todos nosotros: " },
+    { text: "¡el cumpleaños de nuestra querida jefa Karina!", options: { italic: true, color: WINE } },
+  ], { y: 2.35, h: 1.0, x: 0.6, w: W - 1.2, fontFace: SERIF, fontSize: 16, color: INK, lineSpacingMultiple: 1.1 });
+  t(s, "Como ya es tradición, cada año organizamos un compartir para celebrar esta ocasión tan bonita, y este año no será la excepción.",
+    { y: 3.45, h: 1.0, x: 0.6, w: W - 1.2, fontFace: SERIF, fontSize: 16, color: INK, lineSpacingMultiple: 1.1 });
+  t(s, "Diciembre", { y: 4.75, h: 0.7, fontFace: SCRIPT, fontSize: 32, color: GREEN_D });
+  const days = ["Lu", "Ma", "Mi", "Ju", "Vi", "Sá", "Do"];
+  const cw = 0.62, x0 = center(cw * 7), y0 = 5.55, rh = 0.48;
+  days.forEach((d, i) => t(s, d.toUpperCase(), { x: x0 + i * cw, w: cw, y: y0, h: 0.3, fontFace: SANS, fontSize: 8, color: GREEN_D, charSpacing: 1 }));
+  for (let day = 1; day <= 31; day++) {
+    const col = day % 7, row = Math.floor(day / 7);
+    const x = x0 + col * cw, y = y0 + 0.4 + row * rh;
+    if (day === 3) {
+      const h = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      h.setAttribute("viewBox", "0 0 100 92"); h.classList.add("heart");
+      h.innerHTML = '<path fill="' + WINE + '" d="M50 92 C50 92 0 58 0 27 C0 11 12 0 27 0 C37 0 46 6 50 15 C54 6 63 0 73 0 C88 0 100 11 100 27 C100 58 50 92 50 92 Z"/>';
+      box(s, h, x + cw / 2 - 0.25, y - 0.04, 0.5, 0.46);
+      t(s, "3", { x, w: cw, y, h: 0.36, fontFace: SERIF, bold: true, fontSize: 15, color: CREAM });
+    } else {
+      t(s, String(day), { x, w: cw, y, h: 0.36, fontFace: SERIF, fontSize: 15, color: INK });
+    }
+  }
+}
+
+// 3 ─ Los detalles
+{
+  const s = slide("detalles"); bg(s, "emboss_frame_green.jpg");
+  t(s, "Los detalles", { y: 1.0, h: 0.9, fontFace: SCRIPT, fontSize: 44, color: CREAM });
+  img(s, "flourish_cream.png", center(2.4), 1.95, 2.4, 0.24);
+  [
+    ["ic_cal_cream.png", "FECHA", "Jueves 3 de diciembre"],
+    ["ic_clock_cream.png", "HORA", "1:00 p. m."],
+    ["ic_lunch_cream.png", "PLAN", "Almuerzo de cumpleaños"],
+    ["ic_pin_cream.png", "LUGAR", "Pendiente por definir"],
+  ].forEach(([ic, lab, val], i) => {
+    const y = 2.5 + i * 1.3;
+    img(s, ic, center(0.5), y, 0.5, 0.5, lab);
+    t(s, lab, { y: y + 0.55, h: 0.28, fontFace: SANS, fontSize: 8.5, color: CREAM, charSpacing: 4 });
+    t(s, val, { y: y + 0.82, h: 0.4, fontFace: SERIF, bold: true, fontSize: 19, color: CREAM });
+  });
+  t(s, "Te avisaremos el lugar muy pronto", { y: 7.75, h: 0.35, fontFace: SERIF, italic: true, fontSize: 14, color: CREAM });
+}
+
+// 4 ─ Tu aporte + confirmar
+{
+  const s = slide("aporte"); bg(s, "emboss_corners_cream_b.jpg");
+  img(s, "ic_gift_wine.png", center(0.55), 0.6, 0.55, 0.55, "Regalo");
+  t(s, "Tu aporte", { y: 1.15, h: 0.85, fontFace: SCRIPT, fontSize: 42, color: WINE });
+  t(s, "$250.000", { y: 2.05, h: 0.8, fontFace: SERIF, bold: true, fontSize: 48, color: GREEN_D });
+  t(s, "CUOTA POR PERSONA", { y: 2.85, h: 0.28, fontFace: SANS, fontSize: 8.5, color: INK, charSpacing: 4 });
+  rect(s, 0.65, 3.4, W - 1.3, 1.25, 0.12, "#E8E1CC", GREEN, 0.75);
+  t(s, [
+    { text: "Plazo máximo: " }, { text: "30 de noviembre", options: { bold: true, color: WINE, breakLine: true } },
+    { text: "El dinero lo recibe " }, { text: "Cecilia", options: { bold: true, color: WINE } },
+  ], { x: 0.75, w: W - 1.5, y: 3.5, h: 1.05, fontFace: SERIF, fontSize: 17, color: INK, lineSpacingMultiple: 1.3 });
+  img(s, "flourish_burg.png", center(2.4), 5.0, 2.4, 0.24);
+  t(s, "¿Contamos contigo?", { y: 5.45, h: 0.85, fontFace: SCRIPT, fontSize: 38, color: WINE });
+  t(s, "Confírmanos tu asistencia lo más pronto posible, ya que necesitamos definir un lugar donde podamos estar cómodamente todos.",
+    { y: 6.35, h: 1.2, x: 0.6, w: W - 1.2, fontFace: SERIF, fontSize: 16, color: INK, lineSpacingMultiple: 1.1 });
+  const b = t(s, "CONFIRMAR ASISTENCIA", { x: center(3.2), w: 3.2, y: 7.8, h: 0.5, fontFace: SANS, fontSize: 9, bold: true, color: CREAM, charSpacing: 3 }, "a");
+  b.classList.add("boton"); b.style.background = WINE; b.style.borderRadius = cq(0.25 * 72);
+  b.href = "https://wa.me/?text=" + encodeURIComponent(MENSAJE); b.target = "_blank"; b.rel = "noopener";
+}
+
+// 5 ─ Cierre
+{
+  const s = slide("cierre"); bg(s, "emboss_corners_green.jpg");
+  t(s, "¡Esperamos contar con tu compañía para compartir un momento lleno de alegría, cariño y buenos deseos para nuestra querida Karina!",
+    { y: 2.2, h: 1.9, x: 0.6, w: W - 1.2, fontFace: SERIF, italic: true, fontSize: 19, color: CREAM, lineSpacingMultiple: 1.15 });
+  img(s, "flourish_cream.png", center(2.4), 4.35, 2.4, 0.24);
+  t(s, "Con cariño,", { y: 4.85, h: 0.7, fontFace: SCRIPT, fontSize: 32, color: CREAM });
+  t(s, "tu equipo", { y: 5.45, h: 0.8, fontFace: SCRIPT, fontSize: 40, color: CREAM });
+  const sw = 1.6, sh = sw * 655 / 538;
+  img(s, "seal_real_wine.png", center(sw), 6.45, sw, sh, "Sello de cera con la K");
+  t(s, "¡UN ABRAZO PARA TODOS!", { y: 8.65, h: 0.3, fontFace: SANS, fontSize: 9, color: CREAM, charSpacing: 4 });
+}
+</script>
+</body>
+</html>
