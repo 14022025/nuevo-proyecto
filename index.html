@@ -91,10 +91,12 @@
   function reproducir() {
     btn.hidden = true;
     const p = v.play();
-    if (p && p.catch) p.catch(() => { clearTimeout(falla); btn.hidden = false; });
+    if (p && p.catch) p.catch((e) => {
+      if (e && e.name === "NotAllowedError" && v.paused) { clearTimeout(falla); btn.hidden = false; }
+    });
     clearTimeout(falla); falla = setTimeout(terminar, 10000); // por si el video nunca arranca
   }
-  v.addEventListener("playing", () => clearTimeout(falla));
+  v.addEventListener("playing", () => { clearTimeout(falla); btn.hidden = true; });
   v.addEventListener("timeupdate", () => { if (v.duration && v.currentTime >= v.duration - 0.6) terminar(); });
   v.addEventListener("ended", terminar);
   v.addEventListener("error", terminar);
