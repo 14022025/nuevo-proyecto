@@ -40,6 +40,23 @@
   a.boton:active { transform: scale(.97); }
   a.abre { cursor: pointer; text-decoration: none; z-index: 2; }
   .heart { display: block; }
+  /* Intro: el sobre se abre y se desvanece para mostrar la carta */
+  body.intro { overflow: hidden; }
+  #intro {
+    position: fixed; inset: 0; z-index: 50; background: #2b451f;
+    display: flex; align-items: center; justify-content: center;
+    transition: opacity 1.1s cubic-bezier(.2,.8,.2,1), visibility 1.1s;
+  }
+  #intro video { height: 100svh; width: min(100vw, calc(100svh * 9 / 14)); object-fit: cover; display: block; }
+  #intro.fuera { opacity: 0; visibility: hidden; pointer-events: none; }
+  #abrir {
+    position: absolute; left: 50%; bottom: 12svh; transform: translateX(-50%);
+    font: 700 12px/1 Montserrat, Arial, sans-serif; letter-spacing: .3em; color: #F4ECDC;
+    background: rgba(122,22,38,.92); border: 0; border-radius: 999px; padding: 16px 28px; cursor: pointer;
+  }
+  #abrir[hidden] { display: none; }
+  main { transition: opacity 1.1s cubic-bezier(.2,.8,.2,1), transform 1.1s cubic-bezier(.2,.8,.2,1); }
+  body.intro main { opacity: 0; transform: scale(.97); }
   /* Portada + saludo comparten una sola hoja de papel continua */
   .duo { position: relative; display: flex; flex-direction: column; background: #f3efe6; box-shadow: 0 0 40px rgba(0,0,0,.25); }
   .duo .slide { box-shadow: none; }
@@ -53,8 +70,39 @@
   .hoja.c img { top: -33.3333%; height: 133.3333%; }
 </style>
 </head>
-<body>
+<body class="intro">
+<div id="intro">
+  <video id="sobre" src="video/sobre.mp4" poster="video/sobre.jpg" muted playsinline autoplay preload="auto"></video>
+  <button id="abrir" type="button" hidden>TOCA PARA ABRIR</button>
+</div>
 <main id="inv"></main>
+<script>
+// Intro: el video del sobre arranca solo; al terminar se desvanece y aparece la carta.
+(function () {
+  if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+  window.scrollTo(0, 0);
+  const intro = document.getElementById("intro"), v = document.getElementById("sobre"), btn = document.getElementById("abrir");
+  let listo = false, falla;
+  function terminar() {
+    if (listo) return; listo = true; clearTimeout(falla);
+    document.body.classList.remove("intro"); intro.classList.add("fuera");
+    setTimeout(() => intro.remove(), 1300);
+  }
+  function reproducir() {
+    btn.hidden = true;
+    const p = v.play();
+    if (p && p.catch) p.catch(() => { clearTimeout(falla); btn.hidden = false; });
+    clearTimeout(falla); falla = setTimeout(terminar, 10000); // por si el video nunca arranca
+  }
+  v.addEventListener("playing", () => clearTimeout(falla));
+  v.addEventListener("timeupdate", () => { if (v.duration && v.currentTime >= v.duration - 0.6) terminar(); });
+  v.addEventListener("ended", terminar);
+  v.addEventListener("error", terminar);
+  btn.addEventListener("click", reproducir);
+  intro.addEventListener("click", (e) => { if (e.target !== btn && v.paused && !listo) reproducir(); });
+  reproducir();
+})();
+</script>
 <script>
 // Mismas posiciones que construir_invitacion.js (pulgadas sobre una página de 5,625 × 10).
 const W = 5.625, H = 10, PT = 5.625 * 72; // ancho de la página en puntos
