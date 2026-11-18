@@ -7,9 +7,18 @@
 <meta name="description" content="Jueves 3 de diciembre · Almuerzo de cumpleaños">
 <meta property="og:title" content="Cumpleaños de Karina Llanos">
 <meta property="og:description" content="Jueves 3 de diciembre · 1:00 p. m. · Almuerzo de cumpleaños">
-<meta property="og:image" content="codigo/assets/seal_real_wine.png">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://14022025.github.io/nuevo-proyecto/">
+<meta property="og:image" content="https://14022025.github.io/nuevo-proyecto/video/compartir.jpg">
+<meta property="og:image:secure_url" content="https://14022025.github.io/nuevo-proyecto/video/compartir.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="720">
+<meta property="og:image:height" content="720">
+<meta property="og:image:alt" content="Sobre verde con sello de cera y la K">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://14022025.github.io/nuevo-proyecto/video/compartir.jpg">
 <meta name="theme-color" content="#4E5A32">
-<link rel="icon" href="codigo/assets/seal_real_wine.png">
+<link rel="icon" href="video/compartir.jpg">
 <style>
   @font-face { font-family: "Pinyon Script"; src: url("codigo/fuentes/PinyonScript-Regular.ttf") format("truetype"); font-display: swap; }
   @font-face { font-family: "Cormorant Garamond"; src: url("codigo/fuentes/CormorantGaramond-Regular.ttf") format("truetype"); font-weight: 400; font-style: normal; font-display: swap; }
@@ -126,8 +135,8 @@
 
   function ciclo() {
     if (listo) return;
-    if (auto) meta = lim(meta + 0.012);
-    p += (meta - p) * 0.16; if (Math.abs(meta - p) < 0.0005) p = meta;
+    if (auto) meta = lim(meta + 0.025);
+    p += (meta - p) * 0.22; if (Math.abs(meta - p) < 0.0005) p = meta;
     pintar(false);
     const fuera = lim((p - ABRE) / (1 - ABRE));
     intro.style.opacity = 1 - fuera; main.style.opacity = fuera;
@@ -144,14 +153,14 @@
   window.addEventListener("wheel", (e) => {
     if (listo) return; e.preventDefault();
     const d = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
-    mover(d / (window.innerHeight * 1.4));
+    mover(d / (window.innerHeight * 0.55));
   }, { passive: false });
   // Dedo en el celular
   let y = null;
   intro.addEventListener("touchstart", (e) => { y = e.touches[0].clientY; }, { passive: true });
   intro.addEventListener("touchmove", (e) => {
     if (y === null) return; e.preventDefault();
-    const ny = e.touches[0].clientY; mover((y - ny) / (window.innerHeight * 0.75)); y = ny;
+    const ny = e.touches[0].clientY; mover((y - ny) / (window.innerHeight * 0.35)); y = ny;
   }, { passive: false });
   intro.addEventListener("touchend", () => { y = null; });
   // Teclado y toque: un toque abre el sobre solo
