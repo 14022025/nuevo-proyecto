@@ -143,14 +143,24 @@
     if (p >= 1) return terminar();
     requestAnimationFrame(ciclo);
   }
+  // Al abrir, la portada (el primer papel) queda quieta un momento: el mismo gesto que abrió el sobre
+  // no puede seguir bajando la página. Se puede bajar solo con un gesto nuevo.
+  let quieto = true;
   function terminar() {
-    listo = true; intro.remove(); main.style.opacity = "";
-    document.body.classList.remove("intro"); window.scrollTo(0, 0);
+    listo = true; main.style.opacity = "";
+    intro.style.opacity = 0; intro.style.pointerEvents = "none";
+    window.scrollTo(0, 0);
+    setTimeout(() => {
+      quieto = false; intro.remove();
+      document.body.classList.remove("intro"); window.scrollTo(0, 0);
+    }, 1300);
   }
+  window.addEventListener("touchmove", (e) => { if (quieto) e.preventDefault(); }, { passive: false });
 
   // Rueda del mouse o trackpad
   window.addEventListener("wheel", (e) => {
-    if (listo) return; e.preventDefault();
+    if (!quieto) return; e.preventDefault();
+    if (listo) return;
     const d = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
     mover(d / (window.innerHeight * 0.55));
   }, { passive: false });
@@ -164,7 +174,8 @@
   intro.addEventListener("touchend", () => { y = null; });
   // Teclado y toque: un toque abre el sobre solo
   window.addEventListener("keydown", (e) => {
-    if (listo) return;
+    if (!quieto) return;
+    if (listo) { if (["ArrowDown", "PageDown", " ", "ArrowUp", "PageUp"].includes(e.key)) e.preventDefault(); return; }
     if (["ArrowDown", "PageDown", " ", "Enter"].includes(e.key)) { e.preventDefault(); mover(0.18); }
     if (["ArrowUp", "PageUp"].includes(e.key)) { e.preventDefault(); mover(-0.18); }
   });
