@@ -134,10 +134,13 @@
   const lim = (x) => Math.max(0, Math.min(1, x));
   function mover(d) { if (listo) return; auto = false; meta = lim(meta + d); }
 
-  function ciclo() {
+  let antes = 0;
+  function ciclo(ts) {
+    // Medido en segundos reales: abre igual de rápido en un celular lento o rápido
+    const dt = antes ? Math.min(0.1, (ts - antes) / 1000) : 1 / 60; antes = ts;
     if (listo) return;
-    if (auto) meta = lim(meta + 0.025);
-    p += (meta - p) * 0.22; if (Math.abs(meta - p) < 0.0005) p = meta;
+    if (auto) meta = lim(meta + dt / 1.1);           // un toque abre el sobre en ~1 segundo
+    p += (meta - p) * (1 - Math.pow(0.78, dt * 60)); if (Math.abs(meta - p) < 0.0005) p = meta;
     pintar(false);
     const fuera = lim((p - ABRE) / (1 - ABRE));
     intro.style.opacity = 1 - fuera; main.style.opacity = fuera;
