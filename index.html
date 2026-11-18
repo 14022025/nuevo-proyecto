@@ -40,6 +40,17 @@
   a.boton:active { transform: scale(.97); }
   a.abre { cursor: pointer; text-decoration: none; z-index: 2; }
   .heart { display: block; }
+  /* Portada + saludo comparten una sola hoja de papel continua */
+  .duo { position: relative; display: flex; flex-direction: column; background: #f3efe6; box-shadow: 0 0 40px rgba(0,0,0,.25); }
+  .duo .slide { box-shadow: none; }
+  .hoja { position: absolute; left: 0; right: 0; overflow: hidden; }
+  .hoja img { position: absolute; left: 0; width: 100%; display: block; }
+  .hoja.a { top: 0; height: 37.6%; }
+  .hoja.a img { top: 0; height: calc(100% * 50 / 37.6); }
+  .hoja.b { top: 37.5%; height: 25.1%; transform: scaleY(-1); }
+  .hoja.b img { top: calc(-100% * 12.5 / 25.1); height: calc(100% * 50 / 25.1); }
+  .hoja.c { top: 62.5%; height: 37.5%; }
+  .hoja.c img { top: -33.3333%; height: 133.3333%; }
 </style>
 </head>
 <body>
@@ -55,7 +66,15 @@ const cq = (pt) => (pt / PT * 100) + "cqw";
 const MENSAJE = "¡Hola! Confirmo mi asistencia al almuerzo de cumpleaños de Karina el jueves 3 de diciembre a la 1:00 p. m. 🎉";
 
 const root = document.getElementById("inv");
-function slide(id) { const s = document.createElement("section"); s.className = "slide"; s.id = id; root.appendChild(s); return s; }
+function slide(id, parent) { const s = document.createElement("section"); s.className = "slide"; s.id = id; (parent || root).appendChild(s); return s; }
+// Una sola hoja para las páginas 1 y 2: el papel de la portada sigue sin corte hasta el final del saludo.
+// Filas de la imagen (1920 de alto): 0→1440 normal, 1440→480 en espejo, 480→1920 normal = 2 páginas exactas.
+const duo = document.createElement("div"); duo.className = "duo"; root.appendChild(duo);
+["a", "b", "c"].forEach(k => {
+  const h = document.createElement("div"); h.className = "hoja " + k;
+  const i = document.createElement("img"); i.src = A + "emboss_corners_cream.jpg"; i.alt = "";
+  h.appendChild(i); duo.appendChild(h);
+});
 function box(s, el, x, y, w, h) {
   el.style.left = (x / W * 100) + "%"; el.style.top = (y / H * 100) + "%";
   el.style.width = (w / W * 100) + "%"; el.style.height = (h / H * 100) + "%";
@@ -93,7 +112,7 @@ function rect(s, x, y, w, h, r, fill, line, lw) {
 
 // 1 ─ Portada
 {
-  const s = slide("inicio"); bg(s, "emboss_corners_cream.jpg");
+  const s = slide("inicio", duo);
   t(s, "UNA CARTA ESPECIAL PARA TI", { y: 1.3, h: 0.3, fontFace: SANS, fontSize: 9.5, color: GREEN_D, charSpacing: 4 });
   const sw = 2.15, sh = sw * 655 / 538;
   img(s, "seal_real_wine.png", center(sw), 4.2 - sh / 2, sw, sh, "Sello de cera con la K");
@@ -107,7 +126,7 @@ function rect(s, x, y, w, h, r, fill, line, lw) {
 
 // 2 ─ Saludo + calendario
 {
-  const s = slide("saludo"); bg(s, "cream_plain.jpg");
+  const s = slide("saludo", duo);
   t(s, "¡Queridos compañeros!", { y: 1.45, h: 0.85, fontFace: SCRIPT, fontSize: 36, color: WINE });
   t(s, [
     { text: "Se acerca una fecha muy especial e importante para todos nosotros: " },
