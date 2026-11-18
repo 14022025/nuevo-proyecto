@@ -19,12 +19,14 @@
   @font-face { font-family: "Montserrat"; src: url("codigo/fuentes/Montserrat-Bold.ttf") format("truetype"); font-weight: 700; font-display: swap; }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  /* Un solo tamaño para la carta y para el video del sobre */
+  :root { --ancho: min(100vw, 480px, calc(100svh * 9 / 16)); }
   html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
   body { background: #3a4326; min-height: 100svh; }
   main { display: flex; flex-direction: column; align-items: center; gap: 0; }
   .slide {
     position: relative; overflow: hidden;
-    width: min(100vw, 480px, calc(100svh * 9 / 16));
+    width: var(--ancho);
     aspect-ratio: 5.625 / 10;
     container-type: inline-size;
     scroll-snap-align: center;
@@ -43,20 +45,25 @@
   /* Intro: el sobre se abre y se desvanece para mostrar la carta */
   body.intro { overflow: hidden; }
   #intro {
-    position: fixed; inset: 0; z-index: 50; background: #2b451f;
-    display: flex; align-items: center; justify-content: center;
-    transition: opacity 1.1s cubic-bezier(.2,.8,.2,1), visibility 1.1s;
+    position: fixed; inset: 0; z-index: 50; background: #3a4326;
+    transition: opacity .9s cubic-bezier(.2,.8,.2,1), visibility .9s;
   }
-  #intro video { height: 100svh; width: min(100vw, calc(100svh * 9 / 14)); object-fit: cover; display: block; }
+  /* El sobre ocupa exactamente el mismo recuadro que la portada de la carta */
+  #intro video {
+    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    width: var(--ancho); aspect-ratio: 9 / 16; height: auto;
+    object-fit: cover; display: block; background: #2b451f;
+    box-shadow: 0 0 40px rgba(0,0,0,.25);
+  }
   #intro.fuera { opacity: 0; visibility: hidden; pointer-events: none; }
   #abrir {
-    position: absolute; left: 50%; bottom: 12svh; transform: translateX(-50%);
+    position: absolute; left: 50%; top: calc(var(--ancho) * 16 / 9 * .82); transform: translateX(-50%); z-index: 2;
     font: 700 12px/1 Montserrat, Arial, sans-serif; letter-spacing: .3em; color: #F4ECDC;
     background: rgba(122,22,38,.92); border: 0; border-radius: 999px; padding: 16px 28px; cursor: pointer;
   }
   #abrir[hidden] { display: none; }
-  main { transition: opacity 1.1s cubic-bezier(.2,.8,.2,1), transform 1.1s cubic-bezier(.2,.8,.2,1); }
-  body.intro main { opacity: 0; transform: scale(.97); }
+  main { transition: opacity .9s cubic-bezier(.2,.8,.2,1); }
+  body.intro main { opacity: 0; }
   /* Portada + saludo comparten una sola hoja de papel continua */
   .duo { position: relative; display: flex; flex-direction: column; background: #f3efe6; box-shadow: 0 0 40px rgba(0,0,0,.25); }
   .duo .slide { box-shadow: none; }
@@ -72,7 +79,7 @@
 </head>
 <body class="intro">
 <div id="intro">
-  <video id="sobre" src="video/sobre.mp4" poster="video/sobre.jpg" muted playsinline autoplay preload="auto"></video>
+  <video id="sobre" src="video/sobre.mp4?v=2" poster="video/sobre.jpg" muted playsinline autoplay preload="auto"></video>
   <button id="abrir" type="button" hidden>TOCA PARA ABRIR</button>
 </div>
 <main id="inv"></main>
@@ -97,7 +104,7 @@
     clearTimeout(falla); falla = setTimeout(terminar, 10000); // por si el video nunca arranca
   }
   v.addEventListener("playing", () => { clearTimeout(falla); btn.hidden = true; });
-  v.addEventListener("timeupdate", () => { if (v.duration && v.currentTime >= v.duration - 0.6) terminar(); });
+  v.addEventListener("timeupdate", () => { if (v.duration && v.currentTime >= v.duration - 0.45) terminar(); });
   v.addEventListener("ended", terminar);
   v.addEventListener("error", terminar);
   btn.addEventListener("click", reproducir);
