@@ -53,7 +53,7 @@
   a.abre { cursor: pointer; text-decoration: none; z-index: 2; }
   .heart { display: block; }
   /* Intro: el sobre se abre y se desvanece para mostrar la carta */
-  body.intro { overflow: hidden; }
+  body.intro, body.quieto { overflow: hidden; }
   #intro {
     position: fixed; inset: 0; z-index: 50; background: #3a4326;
   }
@@ -148,11 +148,12 @@
   let quieto = true;
   function terminar() {
     listo = true; main.style.opacity = "";
+    document.body.classList.add("quieto"); document.body.classList.remove("intro");
     intro.style.opacity = 0; intro.style.pointerEvents = "none";
     window.scrollTo(0, 0);
     setTimeout(() => {
       quieto = false; intro.remove();
-      document.body.classList.remove("intro"); window.scrollTo(0, 0);
+      document.body.classList.remove("quieto"); window.scrollTo(0, 0);
     }, 1300);
   }
   window.addEventListener("touchmove", (e) => { if (quieto) e.preventDefault(); }, { passive: false });
