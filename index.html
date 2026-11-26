@@ -302,14 +302,14 @@ function rect(s, x, y, w, h, r, fill, line, lw) {
     ["ic_cal_cream.png", "FECHA", "Jueves 3 de diciembre"],
     ["ic_clock_cream.png", "HORA", "1:00 p. m."],
     ["ic_lunch_cream.png", "PLAN", "Almuerzo de cumpleaños"],
-    ["ic_pin_cream.png", "LUGAR", "Pendiente por definir"],
+    ["ic_pin_cream.png", "LUGAR", "Restaurante Amalfi Cucina"],
   ].forEach(([ic, lab, val], i) => {
     const y = 2.5 + i * 1.3;
     img(s, ic, center(0.5), y, 0.5, 0.5, lab);
     t(s, lab, { y: y + 0.55, h: 0.28, fontFace: SANS, fontSize: 8.5, color: CREAM, charSpacing: 4 });
     t(s, val, { y: y + 0.82, h: 0.4, fontFace: SERIF, bold: true, fontSize: 19, color: CREAM });
   });
-  t(s, "Te avisaremos el lugar muy pronto", { y: 7.75, h: 0.35, fontFace: SERIF, italic: true, fontSize: 14, color: CREAM });
+  t(s, "Cra. 52 #76-122, Barranquilla", { y: 7.75, h: 0.35, fontFace: SERIF, italic: true, fontSize: 14, color: CREAM });
 }
 
 // 4 ─ Tu aporte + confirmar
